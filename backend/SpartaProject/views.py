@@ -131,22 +131,22 @@ def fetch_latest_data(request):
                 'isMalicious': doc_data.get('isMalicious', None),
                 'date': doc_data.get('date', None)
             })
+        if doc_data.get('value', None)=='hostname':
+            target_domain = doc_data.get('value', None)
+            record_types = ["A", "AAAA", "CNAME", "MX", "NS", "SOA", "TXT"]
+            # Create a DNS resolver
+            resolver = dns.resolver.Resolver()
+            List = []
+            for record_type in record_types:
+                # Perform DNS lookup for the specified domain and record type
+                try:
+                    answers = resolver.resolve(target_domain, record_type)
+                except dns.resolver.NoAnswer:
+                    continue
+                # Print the answers
 
-        target_domain = doc_data.get('value', None)
-        record_types = ["A", "AAAA", "CNAME", "MX", "NS", "SOA", "TXT"]
-        # Create a DNS resolver
-        resolver = dns.resolver.Resolver()
-        List = []
-        for record_type in record_types:
-            # Perform DNS lookup for the specified domain and record type
-            try:
-                answers = resolver.resolve(target_domain, record_type)
-            except dns.resolver.NoAnswer:
-                continue
-            # Print the answers
-
-            for rdata in answers:
-                data.append({record_type: rdata})
+                for rdata in answers:
+                    data.append({record_type: rdata})
 
         # Return the data as JSON
         return JsonResponse({"data": data},safe=False)
